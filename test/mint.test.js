@@ -84,9 +84,11 @@ describe("Recall Contract", function () {
       await recallToken.connect(manufacturer2).transferRecallToken(customer1.address, 0, 1, 0x0, false);
       await expect(recallToken.connect(customer1).announceDefect(0)).to.emit(recallToken, "DefectAnnounced").withArgs(customer1.address, 0);
 
-      await recallToken.connect(manufacturer1).checkToken(0, 1);
+      await recallToken.connect(manufacturer1).checkToken(0, 3);
       const tokenState = await recallToken.connect(manufacturer1).getManufacturerTokenCheckingStateValue(manufacturer1.address, 0);
-      await expect(tokenState).to.equal(1);
+      await expect(tokenState).to.equal(3);
+
+      await expect(recallToken.connect(manufacturer1).checkToken(0, 2)).to.be.revertedWith("Token can not be checked");
     });
   })
 });
