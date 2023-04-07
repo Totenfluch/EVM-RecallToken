@@ -12,9 +12,10 @@
     "@openzeppelin/contracts": "^4.8.2"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.5",
     "chai": "^4.3.7",
-    "ethers": "^6.3.0",
     "hardhat": "^2.13.0"
   }
 }
