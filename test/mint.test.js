@@ -113,7 +113,7 @@ describe("Recall Contract", function () {
 
       await recallToken.connect(customer1).transferRecallToken(manufacturer2.address, 0, 1, 0x0, false);
 
-      await recallToken.connect(manufacturer2).mergeToken(0, 1);
+      await expect(recallToken.connect(manufacturer2).mergeToken(0, 1)).to.emit(recallToken, "TokenMerged").withArgs(owner.address, 0, 1, [owner.address, manufacturer1.address, manufacturer2.address, manufacturer3.address]);
       const manufacturersToken0_1 = await recallToken.getManufacturersOfToken(0);
       expect(manufacturersToken0_1).to.eql([owner.address, manufacturer1.address, manufacturer2.address, manufacturer3.address]);
     });

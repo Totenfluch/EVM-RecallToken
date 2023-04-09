@@ -316,6 +316,7 @@ contract RecallToken is ERC1155, Ownable {
         The `_tokenIdMergeTo` argument MUST be the token that the manufacturers are merged into
         The `_tokenIdMergeSource` MUST be the token that the manufacturers are sourced from
     */
+    // TODO For different contract
     function mergeToken(
         uint256 _tokenIdMergeTo,
         uint256 _tokenIdMergeSource
