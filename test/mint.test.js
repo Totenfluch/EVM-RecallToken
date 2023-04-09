@@ -6,7 +6,7 @@ describe("Recall Contract", function () {
   async function deployTokenFixture() {
     // Get the ContractFactory and Signers here.
     const RecallToken = await ethers.getContractFactory("RecallToken");
-    const [owner, manufacturer1, manufacturer2, customer1, customer2] = await ethers.getSigners();
+    const [owner, manufacturer1, manufacturer2, manufacturer3, customer1, customer2] = await ethers.getSigners();
 
     // To deploy our contract, we just have to call Token.deploy() and await
     // its deployed() method, which happens once its transaction has been
@@ -17,7 +17,7 @@ describe("Recall Contract", function () {
     const mintedToken =  await recallToken.mint(owner.address, 0, 1, 0x0)
 
     // Fixtures can return anything you consider useful for your tests
-    return { RecallToken, recallToken, owner, manufacturer1, manufacturer2, customer1, customer2 };
+    return { RecallToken, recallToken, owner, manufacturer1, manufacturer2, manufacturer3, customer1, customer2 };
   }
 
   describe("Contract Deploy",  function () {
@@ -35,7 +35,7 @@ describe("Recall Contract", function () {
         deployTokenFixture
       );
 
-      await recallToken.transferRecallToken(manufacturer1.address, 0, 1, 0x0, true)
+      await recallToken.transferRecallToken(manufacturer1.address, 0, 1, 0x0, true);
       const ownerBalance = await recallToken.balanceOf(owner.address, 0);
       const manufacturer1Balance = await recallToken.balanceOf(manufacturer1.address, 0);
       expect(ownerBalance).to.equal(0);
@@ -63,7 +63,7 @@ describe("Recall Contract", function () {
     });
 
     it("it emits AnnounceDefect", async function () {
-      const { RecallToken, recallToken , owner, manufacturer1, manufacturer2, customer1, customer2 } = await loadFixture(
+      const { RecallToken, recallToken , owner, manufacturer1, manufacturer2, manufacturer3, customer1, customer2 } = await loadFixture(
         deployTokenFixture
       );
 
@@ -89,6 +89,25 @@ describe("Recall Contract", function () {
       await expect(tokenState).to.equal(3);
 
       await expect(recallToken.connect(manufacturer1).checkToken(0, 2)).to.be.revertedWith("Token can not be checked");
+
+      const productionValue = await recallToken.getInProductionValue(0);
+      expect(productionValue).to.equal(true);
+      const manuTokenCheckingStateValue = await recallToken.getManufacturerTokenCheckingStateValue(manufacturer1.address, 0);
+      expect(manuTokenCheckingStateValue).to.equal(3);
+      const tokenCheckingStateValue = await recallToken.getTokenCheckingState(0);
+      expect(tokenCheckingStateValue).to.equal(0);
+      const getTokenStateValue = await recallToken.getTokenStateValue(0);
+      expect(getTokenStateValue).to.equal(1);
+
+      const mintedToken =  await recallToken.mint(owner.address, 1, 1, 0x0);
+      await recallToken.transferRecallToken(manufacturer3.address, 1, 1, 0x0, true);
+      await recallToken.connect(manufacturer3).transferRecallToken(manufacturer3.address, 1, 1, 0x0, true);
+
+      const manufacturersToken0 = await recallToken.getManufacturersOfToken(0);
+      const manufacturersToken1 = await recallToken.getManufacturersOfToken(1);
+      console.log(manufacturersToken0);
+      console.log(manufacturersToken1);
+
     });
   })
 });

@@ -30,46 +30,76 @@ contract RecallToken is ERC1155, Ownable {
         The `_tokenId` argument MUST be the token being announced defect
         The `_resultState` argument must be {CHECKED_NO_DEFECT, CHECKED_DEFECT}
     */
-    event TokenChecked(address indexed _announcer, uint256 _tokenId, TokenCheckingState _resultState);
+    event TokenChecked(
+        address indexed _announcer,
+        uint256 _tokenId,
+        TokenCheckingState _resultState
+    );
 
     /** @dev 
         The `_announcer` argument MUST be the address of an account/contract approved to manage the token
         The `_tokenId` argument MUST be the token that the manufacturers are merged into
         The `_mergedTokenId` MUST be the token that the manufacturers are sourced from
     */
-    event TokenMerged(address indexed _announcer, uint256 _tokenId, uint256 _mergedTokenId);
-    
-    enum TokenState {OK, ON_HOLD, NOT_OK}
+    event TokenMerged(
+        address indexed _announcer,
+        uint256 _tokenId,
+        uint256 _mergedTokenId
+    );
 
-    enum TokenCheckingState {NONE, PLEASE_CHECK, CHECKED_NO_DEFECT, CHECKED_DEFECT}
+    enum TokenState {
+        OK,
+        ON_HOLD,
+        NOT_OK
+    }
+
+    enum TokenCheckingState {
+        NONE,
+        PLEASE_CHECK,
+        CHECKED_NO_DEFECT,
+        CHECKED_DEFECT
+    }
 
     mapping(uint256 => address[]) manufacturers;
 
+    function getManufacturersOfToken(
+        uint256 _tokenId
+    ) public view returns (address[] memory) {
+        return manufacturers[_tokenId];
+    }
+
     mapping(address => mapping(uint256 => TokenCheckingState)) manufacturerTokenCheckingStates;
 
-    function getManufacturerTokenCheckingStateValue (address _address, uint256 _tokenId) public view returns (TokenCheckingState) {
+    function getManufacturerTokenCheckingStateValue(
+        address _address,
+        uint256 _tokenId
+    ) public view returns (TokenCheckingState) {
         return manufacturerTokenCheckingStates[_address][_tokenId];
     }
 
     mapping(uint256 => TokenCheckingState) public tokenCheckingStates;
 
-    function getTokenCheckingState (uint256 _tokenId) public view returns (TokenCheckingState) {
+    function getTokenCheckingState(
+        uint256 _tokenId
+    ) public view returns (TokenCheckingState) {
         return tokenCheckingStates[_tokenId];
     }
 
     mapping(uint256 => TokenState) public tokenStates;
 
-    function getTokenStateValue (uint256 _tokenId) public view returns (TokenState) {
+    function getTokenStateValue(
+        uint256 _tokenId
+    ) public view returns (TokenState) {
         return tokenStates[_tokenId];
     }
 
     mapping(uint256 => bool) public inProduction;
 
-    function getInProductionValue (uint256 _tokenId) public view returns (bool) {
+    function getInProductionValue(uint256 _tokenId) public view returns (bool) {
         return inProduction[_tokenId];
     }
 
-    modifier _isManufacturer (uint256 _tokenId) {
+    modifier _isManufacturer(uint256 _tokenId) {
         bool tempIsManufacturer = false;
         for (uint i = 0; i < manufacturers[_tokenId].length; i++) {
             if (_msgSender() == manufacturers[_tokenId][i]) {
@@ -82,16 +112,15 @@ contract RecallToken is ERC1155, Ownable {
         _;
     }
 
-    function _authorizedForToken (address _from, uint256 _tokenId) public view {
+    function _authorizedForToken(address _from, uint256 _tokenId) public view {
         require(balanceOf(_msgSender(), _tokenId) >= 1, "No Token owned");
-        require(_from == _msgSender() || isApprovedForAll(_from, _msgSender()),
+        require(
+            _from == _msgSender() || isApprovedForAll(_from, _msgSender()),
             "caller is not token owner or approved"
         );
     }
 
-    constructor(string memory uri) ERC1155(uri) {
-
-    }
+    constructor(string memory uri) ERC1155(uri) {}
 
     /**
         @notice Changes the `TokenState` for a token specified by `_tokenId` to `{NOT_OK}`
@@ -121,8 +150,10 @@ contract RecallToken is ERC1155, Ownable {
         }
 
         for (uint i = 0; i < manufacturers[_tokenId].length; i++) {
-            manufacturerTokenCheckingStates[manufacturers[_tokenId][i]][_tokenId] = TokenCheckingState.PLEASE_CHECK;
-        } 
+            manufacturerTokenCheckingStates[manufacturers[_tokenId][i]][
+                _tokenId
+            ] = TokenCheckingState.PLEASE_CHECK;
+        }
         emit DefectAnnounced(_msgSender(), _tokenId);
     }
 
@@ -135,7 +166,10 @@ contract RecallToken is ERC1155, Ownable {
         @param _tokenId             The defect Token
         @param _tokenCheckingState  Result state of the check
     */
-    function checkToken(uint256 _tokenId, TokenCheckingState _tokenCheckingState) _isManufacturer(_tokenId) public {
+    function checkToken(
+        uint256 _tokenId,
+        TokenCheckingState _tokenCheckingState
+    ) public _isManufacturer(_tokenId) {
         uint selectedManufacturer = 0;
         for (uint i = 0; i < manufacturers[_tokenId].length; i++) {
             if (_msgSender() == manufacturers[_tokenId][i]) {
@@ -143,8 +177,14 @@ contract RecallToken is ERC1155, Ownable {
                 break;
             }
         }
-        require(manufacturerTokenCheckingStates[_msgSender()][_tokenId] == TokenCheckingState.PLEASE_CHECK, "Token can not be checked");
-        manufacturerTokenCheckingStates[_msgSender()][_tokenId] = _tokenCheckingState;
+        require(
+            manufacturerTokenCheckingStates[_msgSender()][_tokenId] ==
+                TokenCheckingState.PLEASE_CHECK,
+            "Token can not be checked"
+        );
+        manufacturerTokenCheckingStates[_msgSender()][
+            _tokenId
+        ] = _tokenCheckingState;
     }
 
     /**
@@ -155,7 +195,7 @@ contract RecallToken is ERC1155, Ownable {
         @param _tokenIds           The defect Token
     */
     function forwardRecall(uint256[] calldata _tokenIds) public {
-        for (uint i = 0; i < _tokenIds.length; i ++) {
+        for (uint i = 0; i < _tokenIds.length; i++) {
             bool tempIsManufacturer = false;
             for (uint x = 0; x < manufacturers[_tokenIds[i]].length; x++) {
                 if (_msgSender() == manufacturers[_tokenIds[i]][x]) {
@@ -163,9 +203,12 @@ contract RecallToken is ERC1155, Ownable {
                     break;
                 }
             }
-            require(tempIsManufacturer == true, "Not a Manufacturer of this token");
+            require(
+                tempIsManufacturer == true,
+                "Not a Manufacturer of this token"
+            );
         }
-        for (uint i = 0; i < _tokenIds.length; i ++) {
+        for (uint i = 0; i < _tokenIds.length; i++) {
             tokenStates[_tokenIds[i]] = TokenState.NOT_OK;
         }
         emit ForwardRecall(_msgSender(), _tokenIds);
@@ -176,10 +219,16 @@ contract RecallToken is ERC1155, Ownable {
      * if _internal is true, receiver will be added as manufacturer, otherwise not
      * after _internal is set false for one transfer, receivers will no longer be added as manufacturers
      */
-    function transferRecallToken(address _receiver, uint256 _tokenId, uint256 amount, bytes memory data, bool _internal) public {
+    function transferRecallToken(
+        address _receiver,
+        uint256 _tokenId,
+        uint256 amount,
+        bytes memory data,
+        bool _internal
+    ) public {
         safeTransferFrom(_msgSender(), _receiver, _tokenId, amount, data);
         if (inProduction[_tokenId] && _internal) {
-            manufacturers[_tokenId].push(_receiver);
+            appendUniqueManufacturerOfToken(_receiver, _tokenId);
         }
         if (!_internal && !inProduction[_tokenId]) {
             inProduction[_tokenId] = false;
@@ -191,11 +240,23 @@ contract RecallToken is ERC1155, Ownable {
      * if _internal is true, receiver will be added as manufacturer, otherwise not
      * after _internal is set false for one transfer, receivers will no longer be added as manufacturers
      */
-    function batchTransferRecallToken(address _receiver, uint256[] calldata _tokenIds, uint256[] calldata _amounts, bytes memory data, bool _internal) public {
-        safeBatchTransferFrom(_msgSender(), _receiver, _tokenIds, _amounts, data);
+    function batchTransferRecallToken(
+        address _receiver,
+        uint256[] calldata _tokenIds,
+        uint256[] calldata _amounts,
+        bytes memory data,
+        bool _internal
+    ) public {
+        safeBatchTransferFrom(
+            _msgSender(),
+            _receiver,
+            _tokenIds,
+            _amounts,
+            data
+        );
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             if (inProduction[_tokenIds[i]] && _internal) {
-                manufacturers[_tokenIds[i]].push(_receiver);
+                appendUniqueManufacturerOfToken(_receiver, _tokenIds[i]);
             }
             if (!_internal && !inProduction[_tokenIds[i]]) {
                 inProduction[_tokenIds[i]] = false;
@@ -214,9 +275,15 @@ contract RecallToken is ERC1155, Ownable {
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
      * acceptance magic value.
      */
-    function mint(address to, uint256 id, uint256 amount, bytes memory data) onlyOwner public {
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public onlyOwner {
         _mint(to, id, amount, data);
-        inProduction[id]  = true;
+        inProduction[id] = true;
+        manufacturers[id].push(_msgSender());
     }
 
     /**
@@ -230,10 +297,16 @@ contract RecallToken is ERC1155, Ownable {
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
      * acceptance magic value.
      */
-    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) onlyOwner public {
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) public onlyOwner {
         _mintBatch(to, ids, amounts, data);
         for (uint256 i = 0; i < ids.length; i++) {
-            inProduction[i]  = true;
+            inProduction[ids[i]] = true;
+            manufacturers[ids[i]].push(_msgSender());
         }
     }
 
@@ -241,12 +314,32 @@ contract RecallToken is ERC1155, Ownable {
         The `_tokenIdMergeTo` argument MUST be the token that the manufacturers are merged into
         The `_tokenIdMergeSource` MUST be the token that the manufacturers are sourced from
     */
-    function mergeToken (uint256 _tokenIdMergeTo, uint256 _tokenIdMergeSource) _isManufacturer(_tokenIdMergeTo) public {
+    function mergeToken(
+        uint256 _tokenIdMergeTo,
+        uint256 _tokenIdMergeSource
+    ) public _isManufacturer(_tokenIdMergeTo) {
         _authorizedForToken(_msgSender(), _tokenIdMergeTo);
         //_mergeInto does not need to be owned
-        for(uint256 i = 0; i < manufacturers[_tokenIdMergeSource].length; i++) {
-            manufacturers[_tokenIdMergeTo].push(manufacturers[_tokenIdMergeSource][i]);
+        for (
+            uint256 i = 0;
+            i < manufacturers[_tokenIdMergeSource].length;
+            i++
+        ) {
+            appendUniqueManufacturerOfToken(manufacturers[_tokenIdMergeSource][i], _tokenIdMergeTo);
         }
         emit TokenMerged(_msgSender(), _tokenIdMergeTo, _tokenIdMergeSource);
+    }
+
+    function appendUniqueManufacturerOfToken(address _manufacturer, uint256 _tokenId) private {
+        bool found = false;
+        for (uint256 i = 0; i < manufacturers[_tokenId].length; i++) {
+            if (manufacturers[_tokenId][i] == _manufacturer) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            manufacturers[_tokenId].push(_manufacturer);
+        }
     }
 }
