@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@openzeppelin/contracts": "^4.8.2",
+    "dotenv": "^16.0.3",
     "hardhat-deploy": "^0.11.26",
     "hardhat-gui": "^0.0.14",
     "hardhat-tracer": "^2.2.2"
