@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 
-describe("Contract Test", function () {
+describe("Contract Testing", function () {
     let RecallToken;
     let [owner, manufacturer1, manufacturer2, manufacturer3, customer1, customer2] = [];
     let recallToken;
@@ -20,13 +20,13 @@ describe("Contract Test", function () {
         expect(recallToken).to.not.be.undefined;
     });
 
-    it("Should mint a token", async function () {
+    it("Should mint a Token to the Contract Owner", async function () {
         await recallToken.mint(owner.address, 0, 1, 0x0);
         const ownerBalance = await recallToken.balanceOf(owner.address, 0);
         expect(1).to.equal(ownerBalance);
     });
 
-    it("transfers token to new address", async function () {
+    it("Transfers Token to new Address", async function () {
         await recallToken.transferRecallToken(manufacturer1.address, 0, 1, 0x0, true);
         const ownerBalance = await recallToken.balanceOf(owner.address, 0);
         const manufacturer1Balance = await recallToken.balanceOf(manufacturer1.address, 0);
@@ -34,7 +34,7 @@ describe("Contract Test", function () {
         expect(manufacturer1Balance).to.equal(1);
     });
 
-    it("records the balance of the manufacturers", async function () {  
+    it("Manufacturers have the correct Balance", async function () {  
         await recallToken.connect(manufacturer1).transferRecallToken(manufacturer2.address, 0, 1, 0x0, true);
         const manufacturer1aBalance = await recallToken.balanceOf(manufacturer1.address, 0);
         const manufacturer2aBalance = await recallToken.balanceOf(manufacturer2.address, 0);
@@ -43,12 +43,12 @@ describe("Contract Test", function () {
         expect(manufacturer2aBalance).to.equal(1);
       });
 
-      it("emits AnnounceDefect", async function () {
+      it("Emits AnnounceDefect", async function () {
         await recallToken.connect(manufacturer2).transferRecallToken(customer1.address, 0, 1, 0x0, false);
         await expect(recallToken.connect(customer1).announceDefect(0)).to.emit(recallToken, "DefectAnnounced").withArgs(customer1.address, 0);
       });
 
-      it("gets the correct checking state and fails to check without permissions", async function () {
+      it("Gets the correct checking state and fails to check without permissions", async function () {
         await recallToken.connect(manufacturer1).checkToken(0, 3);
         const tokenState = await recallToken.connect(manufacturer1).getManufacturerTokenCheckingStateValue(manufacturer1.address, 0);
         await expect(tokenState).to.equal(3);
@@ -56,7 +56,7 @@ describe("Contract Test", function () {
         await expect(recallToken.connect(manufacturer1).checkToken(0, 2)).to.be.revertedWith("Token can not be checked");
       });
 
-      it("has the correct token values", async function () {
+      it("Tokens have the correct Property Values", async function () {
         const productionValue = await recallToken.getInProductionValue(0);
         expect(productionValue).to.equal(true);
         const manuTokenCheckingStateValue = await recallToken.getManufacturerTokenCheckingStateValue(manufacturer1.address, 0);
@@ -67,7 +67,7 @@ describe("Contract Test", function () {
         expect(getTokenStateValue).to.equal(1);
       });
 
-      it("has to correct manufacturer list", async function () {
+      it("Has to correct Manufacturer list", async function () {
         const mintedToken =  await recallToken.mint(owner.address, 1, 1, 0x0);
         await recallToken.transferRecallToken(manufacturer3.address, 1, 1, 0x0, true);
         await recallToken.connect(manufacturer3).transferRecallToken(manufacturer3.address, 1, 1, 0x0, true);
@@ -79,11 +79,11 @@ describe("Contract Test", function () {
         expect(manufacturersToken1).to.eql([owner.address, manufacturer3.address]);
       });
 
-      it("fails to merge token without correct permissions", async function () {
+      it("Fails to merge token without correct permissions", async function () {
         await expect(recallToken.connect(manufacturer2).mergeToken(0, 1)).to.be.revertedWith("No Token owned");
       });
 
-      it("merges the tokens correctly", async function () {
+      it("Merges the tokens correctly", async function () {
         await recallToken.connect(customer1).transferRecallToken(manufacturer2.address, 0, 1, 0x0, false);
   
         await expect(recallToken.connect(manufacturer2).mergeToken(0, 1)).to.emit(recallToken, "TokenMerged");
@@ -91,11 +91,11 @@ describe("Contract Test", function () {
         expect(manufacturersToken0_1).to.eql([owner.address, manufacturer1.address, manufacturer2.address, manufacturer3.address]);
       });
 
-      it("fails to forwardRecall without correct permissions", async function () {
+      it("Fails to forwardRecall without correct permissions", async function () {
         await expect(recallToken.connect(customer1).forwardRecall([0, 1])).to.be.revertedWith("Not a Manufacturer of this Token");
       });
 
-      it("executes forwardRecall properly", async function () {
+      it("Executes forwardRecall for Token 1 and 2", async function () {
         const mintedToken =  await recallToken.mint(owner.address, 2, 1, 0x0);
         await recallToken.transferRecallToken(manufacturer3.address, 2, 1, 0x0, true);
         await recallToken.connect(manufacturer3).transferRecallToken(manufacturer3.address, 2, 1, 0x0, true);
