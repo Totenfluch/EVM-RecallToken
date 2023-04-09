@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
     @dev See https://eips.ethereum.org/EIPS/eip-ERC4242
     Note: The ERC-165 identifier for this interface is 0xd9b67a26.
  */
-interface ERC4242 /* is ERC1155 ERC165 */ {
+interface ERCXXXX /* is ERC1155 */ {
     /** @dev 
         The `_announcer` argument MUST be the address of an account/contract that currently owns the token
         The `_tokenId` argument MUST be the token being announced defect
@@ -24,6 +24,13 @@ interface ERC4242 /* is ERC1155 ERC165 */ {
         The `_resultState` argument must be {CHECKED_NO_DEFECT, CHECKED_DEFECT}
     */
     event TokenChecked(address indexed _announcer, uint256 _tokenId, TokenCheckingState _resultState);
+
+     /** @dev 
+        The `_announcer` argument MUST be the address of an account/contract approved to manage the token
+        The `_tokenId` argument MUST be the token that the manufacturers are merged into
+        The `_mergedTokenId` MUST be the token that the manufacturers are sourced from
+    */
+    event TokenMerged(address indexed _announcer, uint256 _tokenId, uint256 _mergedTokenId);
     
     enum TokenState {OK, ON_HOLD, NOT_OK}
 
