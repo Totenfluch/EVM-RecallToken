@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
     @dev See https://eips.ethereum.org/EIPS/eip-ERC4242
     Note: The ERC-165 identifier for this interface is 0xd9b67a26.
  */
-interface ERCxxxx /* is ERC1155 */ {
+/* is ERC1155 */ interface ERCxxxx {
     /** @dev 
         The `_announcer` argument MUST be the address of an account/contract that currently owns the token
         The `_tokenId` argument MUST be the token being announced defect
@@ -23,18 +23,35 @@ interface ERCxxxx /* is ERC1155 */ {
         The `_tokenId` argument MUST be the token being announced defect
         The `_resultState` argument must be {CHECKED_NO_DEFECT, CHECKED_DEFECT}
     */
-    event TokenChecked(address indexed _announcer, uint256 _tokenId, TokenCheckingState _resultState);
+    event TokenChecked(
+        address indexed _announcer,
+        uint256 _tokenId,
+        TokenCheckingState _resultState
+    );
 
-     /** @dev 
+    /** @dev 
         The `_announcer` argument MUST be the address of an account/contract approved to manage the token
         The `_tokenId` argument MUST be the token that the manufacturers are merged into
         The `_mergedTokenId` MUST be the token that the manufacturers are sourced from
     */
-    event TokenMerged(address indexed _announcer, uint256 _tokenId, uint256 _mergedTokenId);
-    
-    enum TokenState {OK, ON_HOLD, NOT_OK}
+    event TokenMerged(
+        address indexed _announcer,
+        uint256 _tokenId,
+        uint256 _mergedTokenId
+    );
 
-    enum TokenCheckingState {NONE, PLEASE_CHECK, CHECKED_NO_DEFECT, CHECKED_DEFECT}
+    enum TokenState {
+        OK,
+        ON_HOLD,
+        NOT_OK
+    }
+
+    enum TokenCheckingState {
+        NONE,
+        PLEASE_CHECK,
+        CHECKED_NO_DEFECT,
+        CHECKED_DEFECT
+    }
 
     /**
         @notice Changes the `TokenState` for a token specified by `_tokenId` to `{NOT_OK}`
@@ -55,7 +72,10 @@ interface ERCxxxx /* is ERC1155 */ {
         @param _tokenId             The defect Token
         @param _tokenCheckingState  Result state of the check
     */
-    function checkToken(uint256 _tokenId, TokenCheckingState _tokenCheckingState) external;
+    function checkToken(
+        uint256 _tokenId,
+        TokenCheckingState _tokenCheckingState
+    ) external;
 
     /**
         @notice Changes the `TokenState` for all token specified by `_tokenIds` to `{NOT_OK}`
@@ -65,4 +85,17 @@ interface ERCxxxx /* is ERC1155 */ {
         @param _tokenIds           The defect Token
     */
     function forwardRecall(uint256[] calldata _tokenIds) external;
+
+    /** @dev 
+        The `_tokenIdMergeTo` argument MUST be the token that the manufacturers are merged into
+        The `_tokenIdMergeSource` MUST be the token that the manufacturers are sourced from
+    */
+    function mergeToken(uint256 _tokenIdMergeTo, uint256 _tokenIdMergeSource) external;
+
+    /** @dev 
+        The `_tokenContractAddress` MUST be a ERCxxx contract
+        The `_tokenIdMergeTo` argument MUST be the token that the manufacturers are merged into
+        The `_tokenIdMergeSource` MUST be the token that the manufacturers are sourced from
+    */
+    function mergeExternalToken(address _tokenContractAddress, uint256 _tokenIdMergeTo, uint256 _tokenIdMergeSource) external;
 }
