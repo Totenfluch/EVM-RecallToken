@@ -105,9 +105,17 @@ describe("Recall Contract", function () {
 
       const manufacturersToken0 = await recallToken.getManufacturersOfToken(0);
       const manufacturersToken1 = await recallToken.getManufacturersOfToken(1);
-      console.log(manufacturersToken0);
-      console.log(manufacturersToken1);
 
+      expect(manufacturersToken0).to.eql([owner.address, manufacturer1.address, manufacturer2.address]);
+      expect(manufacturersToken1).to.eql([owner.address, manufacturer3.address]);
+
+      await expect(recallToken.connect(manufacturer2).mergeToken(0, 1)).to.be.revertedWith("No Token owned");
+
+      await recallToken.connect(customer1).transferRecallToken(manufacturer2.address, 0, 1, 0x0, false);
+
+      await recallToken.connect(manufacturer2).mergeToken(0, 1);
+      const manufacturersToken0_1 = await recallToken.getManufacturersOfToken(0);
+      expect(manufacturersToken0_1).to.eql([owner.address, manufacturer1.address, manufacturer2.address, manufacturer3.address]);
     });
   })
 });
