@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@openzeppelin/contracts": "^4.8.2"
+    "@openzeppelin/contracts": "^4.8.2",
+    "hardhat-tracer": "^2.2.2"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",

@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 
-describe("Contract Deploy", function () {
+describe("Contract Test", function () {
     let RecallToken;
     let [owner, manufacturer1, manufacturer2, manufacturer3, customer1, customer2] = [];
     let recallToken;
@@ -93,5 +93,17 @@ describe("Contract Deploy", function () {
 
       it("fails to forwardRecall without correct permissions", async function () {
         await expect(recallToken.connect(customer1).forwardRecall([0, 1])).to.be.revertedWith("Not a Manufacturer of this Token");
+      });
+
+      it("executes forwardRecall properly", async function () {
+        const mintedToken =  await recallToken.mint(owner.address, 2, 1, 0x0);
+        await recallToken.transferRecallToken(manufacturer3.address, 2, 1, 0x0, true);
+        await recallToken.connect(manufacturer3).transferRecallToken(manufacturer3.address, 2, 1, 0x0, true);
+
+        await recallToken.connect(manufacturer3).forwardRecall([1, 2]);
+        const recallStatusToken1 = await recallToken.getTokenStateValue(1);
+        const recallStatusToken2 = await recallToken.getTokenStateValue(2);
+        expect(recallStatusToken1).to.equal(2);
+        expect(recallStatusToken2).to.equal(2);
       });
 });
