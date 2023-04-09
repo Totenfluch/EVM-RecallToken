@@ -316,7 +316,6 @@ contract RecallToken is ERC1155, Ownable {
         The `_tokenIdMergeTo` argument MUST be the token that the manufacturers are merged into
         The `_tokenIdMergeSource` MUST be the token that the manufacturers are sourced from
     */
-    // TODO For different contract
     function mergeToken(
         uint256 _tokenIdMergeTo,
         uint256 _tokenIdMergeSource
@@ -328,12 +327,57 @@ contract RecallToken is ERC1155, Ownable {
             i < manufacturers[_tokenIdMergeSource].length;
             i++
         ) {
-            appendUniqueManufacturerOfToken(manufacturers[_tokenIdMergeSource][i], _tokenIdMergeTo);
+            appendUniqueManufacturerOfToken(
+                manufacturers[_tokenIdMergeSource][i],
+                _tokenIdMergeTo
+            );
         }
-        emit TokenMerged(_msgSender(), _tokenIdMergeTo, _tokenIdMergeSource, manufacturers[_tokenIdMergeTo]);
+        emit TokenMerged(
+            _msgSender(),
+            _tokenIdMergeTo,
+            _tokenIdMergeSource,
+            manufacturers[_tokenIdMergeTo]
+        );
     }
 
-    function appendUniqueManufacturerOfToken(address _manufacturer, uint256 _tokenId) private {
+    /** @dev 
+        The `_tokenContractAddress` MUST be a ERCxxx contract
+        The `_tokenIdMergeTo` argument MUST be the token that the manufacturers are merged into
+        The `_tokenIdMergeSource` MUST be the token that the manufacturers are sourced from
+    */
+    function mergeExternalToken(
+        address _tokenContractAddress,
+        uint256 _tokenIdMergeTo,
+        uint256 _tokenIdMergeSource
+    ) public _isManufacturer(_tokenIdMergeTo) {
+        _authorizedForToken(_msgSender(), _tokenIdMergeTo);
+
+        RecallToken tokenContract = RecallToken(_tokenContractAddress);
+
+        for (
+            uint256 i = 0;
+            i <
+            tokenContract.getManufacturersOfToken(_tokenIdMergeSource).length;
+            i++
+        ) {
+            appendUniqueManufacturerOfToken(
+                tokenContract.getManufacturersOfToken(_tokenIdMergeSource)[i],
+                _tokenIdMergeTo
+            );
+        }
+
+        emit TokenMerged(
+            _msgSender(),
+            _tokenIdMergeTo,
+            _tokenIdMergeSource,
+            manufacturers[_tokenIdMergeTo]
+        );
+    }
+
+    function appendUniqueManufacturerOfToken(
+        address _manufacturer,
+        uint256 _tokenId
+    ) private {
         bool found = false;
         for (uint256 i = 0; i < manufacturers[_tokenId].length; i++) {
             if (manufacturers[_tokenId][i] == _manufacturer) {
