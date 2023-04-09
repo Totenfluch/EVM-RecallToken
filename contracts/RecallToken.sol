@@ -118,7 +118,7 @@ contract RecallToken is ERC1155, Ownable {
         require(balanceOf(_msgSender(), _tokenId) >= 1, "No Token owned");
         require(
             _from == _msgSender() || isApprovedForAll(_from, _msgSender()),
-            "caller is not token owner or approved"
+            "Caller is not Token Owner or approved"
         );
     }
 
@@ -207,7 +207,7 @@ contract RecallToken is ERC1155, Ownable {
             }
             require(
                 tempIsManufacturer == true,
-                "Not a Manufacturer of this token"
+                "Not a Manufacturer of this Token"
             );
         }
         for (uint i = 0; i < _tokenIds.length; i++) {
