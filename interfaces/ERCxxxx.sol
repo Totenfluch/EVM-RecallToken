@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
     @dev See https://eips.ethereum.org/EIPS/eip-ERC4242
     Note: The ERC-165 identifier for this interface is 0xd9b67a26.
  */
-interface ERCXXXX /* is ERC1155 */ {
+interface ERCxxxx /* is ERC1155 */ {
     /** @dev 
         The `_announcer` argument MUST be the address of an account/contract that currently owns the token
         The `_tokenId` argument MUST be the token being announced defect
