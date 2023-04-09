@@ -40,11 +40,13 @@ contract RecallToken is ERC1155, Ownable {
         The `_announcer` argument MUST be the address of an account/contract approved to manage the token
         The `_tokenId` argument MUST be the token that the manufacturers are merged into
         The `_mergedTokenId` MUST be the token that the manufacturers are sourced from
+        The `_manufacturers` MUST all the distinct array combination of manufacturers of _tokenId and _mergedTokenId
     */
     event TokenMerged(
         address indexed _announcer,
         uint256 _tokenId,
-        uint256 _mergedTokenId
+        uint256 _mergedTokenId,
+        address[] _manufacturers
     );
 
     enum TokenState {
@@ -327,7 +329,7 @@ contract RecallToken is ERC1155, Ownable {
         ) {
             appendUniqueManufacturerOfToken(manufacturers[_tokenIdMergeSource][i], _tokenIdMergeTo);
         }
-        emit TokenMerged(_msgSender(), _tokenIdMergeTo, _tokenIdMergeSource);
+        emit TokenMerged(_msgSender(), _tokenIdMergeTo, _tokenIdMergeSource, manufacturers[_tokenIdMergeTo]);
     }
 
     function appendUniqueManufacturerOfToken(address _manufacturer, uint256 _tokenId) private {
