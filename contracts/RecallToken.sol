@@ -5,8 +5,8 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
-    @title ERC-ERC4242 Recall Tracing Token
-    @dev See https://eips.ethereum.org/EIPS/eip-ERC4242
+    @title ERC-ERCxxxx Recall Tracing Token
+    @dev See https://eips.ethereum.org/EIPS/eip-ERCxxxx
     @notice This contract represents a recall tracing token standard that allows manufacturers, distributors, and customers
             to announce defects, check tokens, and forward recalls based on unique product IDs (TokenIDs). 
             It enables efficient traceability and communication within a product supply chain.
