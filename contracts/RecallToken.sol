@@ -28,7 +28,7 @@ contract RecallToken is ERC1155, Ownable {
     /** @dev 
         The `_announcer` argument MUST be the address of an account/contract approved to manage the token
         The `_tokenId` argument MUST be the token being announced defect
-        The `_resultState` argument must be {CHECKED_NO_DEFECT, CHECKED_DEFECT}
+        The `_resultState` argument must be {CHECKED_OK, CHECKED_NOT_OK}
     */
     event TokenChecked(
         address indexed _announcer,
@@ -57,9 +57,9 @@ contract RecallToken is ERC1155, Ownable {
 
     enum TokenCheckingState {
         NONE,
-        PLEASE_CHECK,
-        CHECKED_NO_DEFECT,
-        CHECKED_DEFECT
+        CHECK_REQUESTED,
+        CHECKED_OK,
+        CHECKED_NOT_OK
     }
 
     mapping(uint256 => address[]) manufacturers;
@@ -154,7 +154,7 @@ contract RecallToken is ERC1155, Ownable {
         for (uint i = 0; i < manufacturers[_tokenId].length; i++) {
             manufacturerTokenCheckingStates[manufacturers[_tokenId][i]][
                 _tokenId
-            ] = TokenCheckingState.PLEASE_CHECK;
+            ] = TokenCheckingState.CHECK_REQUESTED;
         }
         emit DefectAnnounced(_msgSender(), _tokenId);
     }
@@ -162,7 +162,7 @@ contract RecallToken is ERC1155, Ownable {
     /**
         @notice Changes the `TokenCheckingState` for a token specified by `_tokenId` to `_tokenCheckingState`
         @dev Caller must be approved to manage the token
-        MUST revert if `TokenCheckingState` of `_tokenId` is `{NONE, CHECKED_NO_DEFECT, CHECKED_DEFECT}`.
+        MUST revert if `TokenCheckingState` of `_tokenId` is `{NONE, CHECKED_OK, CHECKED_NOT_OK}`.
         MUST revert on any other error.
         MUST emit the `TokenChecked` event to reflect the TokenCheckingState change     
         @param _tokenId             The defect Token
@@ -181,7 +181,7 @@ contract RecallToken is ERC1155, Ownable {
         }
         require(
             manufacturerTokenCheckingStates[_msgSender()][_tokenId] ==
-                TokenCheckingState.PLEASE_CHECK,
+                TokenCheckingState.CHECK_REQUESTED,
             "Token can not be checked"
         );
         manufacturerTokenCheckingStates[_msgSender()][

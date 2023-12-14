@@ -1,3 +1,7 @@
 INFURA_KEY=xx
 POLYGON_MUMBAI_PRIVATE_KEY=xx
 ETHERSCAN_API_KEY=xx
+POLYGONSCAN_API_KEY=xx
+
+
+Verify: npx hardhat verify --network mumbai DEPLOYED_CONTRACT_ADDRESS "ipfs://1234"

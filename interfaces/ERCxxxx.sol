@@ -21,7 +21,7 @@ pragma solidity ^0.8.19;
     /** @dev 
         The `_announcer` argument MUST be the address of an account/contract approved to manage the token
         The `_tokenId` argument MUST be the token being announced defect
-        The `_resultState` argument must be {CHECKED_NO_DEFECT, CHECKED_DEFECT}
+        The `_resultState` argument must be {CHECKED_OK, CHECKED_NOT_OK}
     */
     event TokenChecked(
         address indexed _announcer,
@@ -48,9 +48,9 @@ pragma solidity ^0.8.19;
 
     enum TokenCheckingState {
         NONE,
-        PLEASE_CHECK,
-        CHECKED_NO_DEFECT,
-        CHECKED_DEFECT
+        CHECK_REQUESTED,
+        CHECKED_OK,
+        CHECKED_NOT_OK
     }
 
     /**
@@ -66,7 +66,7 @@ pragma solidity ^0.8.19;
     /**
         @notice Changes the `TokenCheckingState` for a token specified by `_tokenId` to `_tokenCheckingState`
         @dev Caller must be approved to manage the token
-        MUST revert if `TokenCheckingState` of `_tokenId` is `{NONE, CHECKED_NO_DEFECT, CHECKED_DEFECT}`.
+        MUST revert if `TokenCheckingState` of `_tokenId` is `{NONE, CHECKED_OK, CHECKED_NOT_OK}`.
         MUST revert on any other error.
         MUST emit the `TokenChecked` event to reflect the TokenCheckingState change     
         @param _tokenId             The defect Token
